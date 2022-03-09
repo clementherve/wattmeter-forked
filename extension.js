@@ -131,10 +131,5 @@ class WattmeterExtension {
 
 // Shell entry point
 function init(meta) {
-    // return new WattmeterExtension();
     return new WattmeterExtension();
 }
-// function enable() {
-//     // Create objects, connect signals, create timeout sources, etc.
-//     new WattmeterExtension();
-// }

@@ -2,6 +2,7 @@
   "name": "wattmeter-forked",
   "description": "A fork of the Wattmeter extension by blackBriar",
   "uuid": "wattmeter-forked@clementherve.fr",
+  "url": "https://github.com/clementherve/wattmeter-forked",
   "shell-version": [
     "40"
   ]
