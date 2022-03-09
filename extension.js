@@ -32,18 +32,17 @@ const STATUS = "/sys/class/power_supply/BAT0/status";
 
 const PREFER_INSTANT_CONSUMPTION = true;
 const HISTORY_SIZE = 100; // power consumption history over the past 100 * 30 seconds
-const REFRESH_INTERVAL = 30; // seconds
+const REFRESH_INTERVAL = 15; // seconds
 
 
 class WattmeterExtension {
-    constructor() {
-        this._wattmeterLabel = undefined;
-        this.historicPower = [];
-        this.instantPower = NaN;
-    }
+    constructor() {}
 
     enable() {
+        this.historicPower = [];
+        this.instantPower = NaN;
         this._wattmeterLabel = new WattmeterLabel();
+
         this._measureTimeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, REFRESH_INTERVAL, Lang.bind(this, this._measure));
 
         this._measure();
@@ -56,7 +55,7 @@ class WattmeterExtension {
         if (this.lastStatus !== 'Discharging') {
             this.historicPower = [];
             this.instantPower = NaN;
-            return this._refresh();
+            return this._refreshUI();
         }
 
         const current = this._getCurrent();
@@ -65,7 +64,7 @@ class WattmeterExtension {
         if (current < 0 || voltage < 0) {
             this.historicPower = [];
             this.instantPower = NaN;
-            return this._refresh();
+            return this._refreshUI();
         }
 
         this.instantPower = current * voltage;
@@ -119,14 +118,23 @@ class WattmeterExtension {
     }
 
     disable() {
-        this._wattmeterLabel.destroy();
-        this._wattmeterLabel = null;
+        if (this._wattmeterLabel) {
+            this._wattmeterLabel.destroy();
+            this._wattmeterLabel = null;
+        }
+        
         GLib.source_remove(this.interval);
+        this.interval = null;
     }
 }
 
 
 // Shell entry point
 function init(meta) {
+    // return new WattmeterExtension();
     return new WattmeterExtension();
 }
+// function enable() {
+//     // Create objects, connect signals, create timeout sources, etc.
+//     new WattmeterExtension();
+// }
