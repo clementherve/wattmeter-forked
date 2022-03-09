@@ -1,0 +1,8 @@
+{
+  "name": "wattmeter-forked",
+  "description": "A fork of the Wattmeter extension by blackBriar",
+  "uuid": "clementherve@clementherve.fr",
+  "shell-version": [
+    "40"
+  ]
+}
