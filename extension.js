@@ -109,8 +109,8 @@ class WattmeterExtension {
             this._wattmeterLabel = null;
         }
         
-        GLib.Source.remove(this.interval);
-        this.interval = null;
+        GLib.Source.remove(this._measureTimeout);
+        this._measureTimeout = null;
     }
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "wattmeter-forked",
-  "description": "A fork of the Wattmeter extension by blackBriar, compatible with gnome 40",
+  "description": "A fork of the Wattmeter extension by blackBriar, compatible with gnome 40. Original version: https://extensions.gnome.org/extension/1867/wattmeter/",
   "uuid": "wattmeter-forked@clementherve.fr",
   "url": "https://github.com/clementherve/wattmeter-forked",
   "shell-version": [
