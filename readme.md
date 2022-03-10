@@ -12,8 +12,8 @@ When it is plugged, it will display 'Charging' or 'Full'.
 ```bash
     git clone https://github.com/clementherve/wattmeter-forked.git wattmeterforked
     gnome-extensions pack wattmeterforked --extra-source=panelLabel.js
-    gnome-extensions install wattmeter-forked@clementherve.fr
-    rm -rf wattmeterforked wattmeter-forked@clementherve.fr
+    gnome-extensions install wattmeter-forked@clementherve.fr.shell-extension.zip
+    rm -rf wattmeterforked wattmeter-forked@clementherve.fr.shell-extension.zip
 ```
 
 ## Troubleshooting
