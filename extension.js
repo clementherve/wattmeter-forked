@@ -23,15 +23,12 @@ const { WattmeterLabel } = Me.imports.panelLabel;
 
 const { GLib }  = imports.gi;
 const Shell = imports.gi.Shell;
-const Lang = imports.lang;
 const Main = imports.ui.main;
 
 const VOLTAGE_NOW = "/sys/class/power_supply/BAT0/voltage_now";
 const CURRENT_NOW = "/sys/class/power_supply/BAT0/current_now";
 const STATUS = "/sys/class/power_supply/BAT0/status";
 
-const PREFER_INSTANT_CONSUMPTION = true;
-const HISTORY_SIZE = 100; // power consumption history over the past 100 * 30 seconds
 const REFRESH_INTERVAL = 15; // seconds
 
 
@@ -39,11 +36,13 @@ class WattmeterExtension {
     constructor() {}
 
     enable() {
-        this.historicPower = [];
         this.instantPower = NaN;
         this._wattmeterLabel = new WattmeterLabel();
-
-        this._measureTimeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, REFRESH_INTERVAL, Lang.bind(this, this._measure));
+        
+        this._measureTimeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, REFRESH_INTERVAL, () => {
+            this._measure();
+            return GLib.SOURCE_CONTINUE;
+        });
 
         this._measure();
         
@@ -53,41 +52,29 @@ class WattmeterExtension {
     _measure() {
         this.lastStatus = this._getStatus().trim();
         if (this.lastStatus !== 'Discharging') {
-            this.historicPower = [];
             this.instantPower = NaN;
             return this._refreshUI();
         }
 
         const current = this._getCurrent();
         const voltage = this._getVoltage();
-
-        if (current < 0 || voltage < 0) {
-            this.historicPower = [];
+        
+        if (current <= 0 || voltage <= 0) {
             this.instantPower = NaN;
             return this._refreshUI();
         }
 
         this.instantPower = current * voltage;
-        this.historicPower.push(this.instantPower);
-        if (this.historicPower.length >= HISTORY_SIZE) {
-            this.historicPower.shift();
-        }
-        
+                
         return this._refreshUI();
     }
 
     _refreshUI() {
-        let power_text = '';
+        log('[wattmeter] - refreshing the ui');
+        const power_text = (this.instantPower === NaN) 
+            ? (this.lastStatus != null ? this.lastStatus : 'N/A') 
+            : `${this.instantPower.toFixed(2)}W`;
 
-        if (this.historicPower.length < 1) {
-            power_text = this.lastStatus != null ? this.lastStatus : 'N/A';
-        } else {
-            const avg = PREFER_INSTANT_CONSUMPTION 
-                ? this.instantPower 
-                : this.historicPower.reduce((acc, elem) => acc + elem, 0.0) / this.historicPower.length;
-            power_text = `${avg.toFixed(2)}W`;
-        }
-        
         if (this._wattmeterLabel.label != undefined)
             this._wattmeterLabel.label.set_text(power_text);
         
@@ -118,18 +105,19 @@ class WattmeterExtension {
     }
 
     disable() {
+        log('[wattmeter] - removing the interval');
         if (this._wattmeterLabel) {
             this._wattmeterLabel.destroy();
             this._wattmeterLabel = null;
         }
         
-        GLib.source_remove(this.interval);
+        GLib.Source.remove(this.interval);
         this.interval = null;
     }
 }
 
 
 // Shell entry point
-function init(meta) {
+function init() {
     return new WattmeterExtension();
 }
