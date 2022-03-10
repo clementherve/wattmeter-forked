@@ -15,6 +15,7 @@ When it is plugged, it will display 'Charging' or 'Full'.
     gnome-extensions install wattmeter-forked@clementherve.fr.shell-extension.zip
     rm -rf wattmeterforked wattmeter-forked@clementherve.fr.shell-extension.zip
 ```
+Then restart your shell.
 
 ## Troubleshooting
 
