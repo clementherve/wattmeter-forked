@@ -36,7 +36,7 @@ class WattmeterExtension {
     constructor() {}
 
     enable() {
-        this.instantPower = NaN;
+        this.instantPower = 0;
         this._wattmeterLabel = new WattmeterLabel();
         
         this._measureTimeout = GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, REFRESH_INTERVAL, () => {
@@ -52,15 +52,15 @@ class WattmeterExtension {
     _measure() {
         this.lastStatus = this._getStatus().trim();
         if (this.lastStatus !== 'Discharging') {
-            this.instantPower = NaN;
+            this.instantPower = 0;
             return this._refreshUI();
         }
 
         const current = this._getCurrent();
         const voltage = this._getVoltage();
         
-        if (current <= 0 || voltage <= 0) {
-            this.instantPower = NaN;
+        if (current < 0 || voltage < 0) {
+            this.instantPower = 0;
             return this._refreshUI();
         }
 
@@ -70,12 +70,11 @@ class WattmeterExtension {
     }
 
     _refreshUI() {
-        log('[wattmeter] - refreshing the ui');
-        const power_text = (this.instantPower === NaN) 
-            ? (this.lastStatus != null ? this.lastStatus : 'N/A') 
-            : `${this.instantPower.toFixed(2)}W`;
+        const power_text = (this.instantPower !== 0) 
+            ? `${this.instantPower.toFixed(2)}W`
+            : (this.lastStatus != null ? this.lastStatus : 'N/A') 
 
-        if (this._wattmeterLabel.label != undefined)
+        if (this._wattmeterLabel != null && this._wattmeterLabel.label != undefined)
             this._wattmeterLabel.label.set_text(power_text);
         
         return true;
@@ -105,8 +104,7 @@ class WattmeterExtension {
     }
 
     disable() {
-        log('[wattmeter] - removing the interval');
-        if (this._wattmeterLabel) {
+        if (this._wattmeterLabel != null) {
             this._wattmeterLabel.destroy();
             this._wattmeterLabel = null;
         }
